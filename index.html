@@ -1,1 +1,41 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Snoopy Tennis SP-30</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"></head><body><main class="device"><header class="brand"><div>N I N T E N D O</div><small>G A M E &amp; W A T C H</small><h1>SNOOPY TENNIS</h1></header><section class="screen-shell"><div class="bezel"><canvas id="lcd" width="480" height="300"></canvas></div></section><section class="controls"><button id="gameA" class="purple">GAME A</button><button id="gameB" class="purple">GAME B</button><button id="hit" class="hit">HIT</button><button id="pause" class="cream">Ⅱ</button><button id="up" class="cream arrow">▲<span>UP</span></button><button id="down" class="cream arrow">▼<span>DOWN</span></button><button id="start" class="start cream">START</button><button id="alarm" class="purple wide">ALARM</button><button id="acl" class="purple wide">ACL</button></section><section class="editor"><button id="editorToggle" class="purple wide">LCD SPRITE EDITOR</button><div id="editorPanel" hidden><div class="editorTop"><select id="spriteSelect"><option value="snoopy">Snoopy</option><option value="charlie">Charlie Brown</option><option value="lucy">Lucy</option><option value="snoopyHit">Snoopy HIT</option><option value="sleep">Snoopy Sleep</option></select><button id="editorClear" class="cream">CLEAR</button><button id="editorReset" class="cream">RESET</button></div><p>Tap LCD cells to edit a character mask. Export gives the exact 1/0 matrix for game.js.</p><div id="spriteGrid" class="spriteGrid"></div><textarea id="spriteOutput" readonly></textarea><button id="editorExport" class="start cream">EXPORT SPRITE</button></div></section></main><script src="game.js"></script></body></html>
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Snoopy Tennis SP-30 — Stage 3</title>
+<link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="device">
+<header class="brand"><div>N I N T E N D O</div><small>G A M E  &amp;  W A T C H</small><h1>SNOOPY TENNIS</h1></header>
+<section class="screen-shell"><div class="bezel"><canvas id="lcd" width="790" height="540"></canvas></div></section>
+
+<section class="controls">
+<button id="gameA" class="purple active">GAME A</button><button id="gameB" class="purple">GAME B</button>
+<button id="hit" class="hit">HIT</button><button id="pause" class="cream">Ⅱ</button>
+<button id="up" class="cream arrow">▲<span>UP</span></button><button id="down" class="cream arrow">▼<span>DOWN</span></button>
+<button id="start" class="start cream">START</button><button id="alarm" class="purple wide">ALARM</button><button id="acl" class="purple wide">ACL</button>
+</section>
+
+<section class="lab">
+<div class="labtop"><b>SP-30 LCD SPRITE LAB — STAGE 3</b><span id="labname">SNOOPY · MID</span></div>
+<div class="labgrid">
+<div class="bigpreview"><canvas id="editor" width="420" height="300"></canvas></div>
+<div class="buttons">
+<button data-s="snoopyTop" class="selected">SNOOPY TOP</button>
+<button data-s="snoopyMid">SNOOPY MID</button>
+<button data-s="snoopyBottom">SNOOPY BOTTOM</button>
+<button data-s="snoopyHit">SNOOPY HIT</button>
+<button data-s="charlie">CHARLIE</button>
+<button data-s="lucy">LUCY</button>
+<button data-s="lucyHit">LUCY HIT</button>
+<button data-s="sleep">GAME OVER</button>
+<hr>
+<button id="clear">CLEAR</button><button id="reset">RESET</button><button id="save">SAVE</button><button id="export">EXPORT</button>
+</div></div>
+<p>Τα μαύρα τετράγωνα είναι ενεργά LCD segments. Πάτησε κάθε τετράγωνο για να διορθώσεις τον χαρακτήρα. Το παιχνίδι χρησιμοποιεί ξεχωριστό mask για κάθε ύψος του Snoopy.</p>
+</section>
+</main>
+<script src="game.js"></script>
+</body></html>
