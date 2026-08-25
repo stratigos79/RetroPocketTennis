@@ -1,0 +1,481 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  background: #111;
+
+  font-family:
+    "Courier New",
+    Courier,
+    monospace;
+
+  touch-action: none;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =========================================
+   GAME CONTAINER
+   ========================================= */
+
+#gameWrap {
+
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #151515;
+}
+
+
+/* =========================================
+   LCD GAME SCREEN
+   ========================================= */
+
+canvas {
+
+  display: block;
+
+  height: 100%;
+  width: auto;
+
+  max-width: 100%;
+
+  background: #e9e5bd;
+
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+
+  border: 4px solid #111;
+}
+
+
+/* =========================================
+   BUTTONS
+   ========================================= */
+
+button {
+
+  font-family:
+    "Courier New",
+    Courier,
+    monospace;
+
+  font-weight: 900;
+
+  color: #111;
+
+  background: #e9e5bd;
+
+  border: 3px solid #111;
+
+  border-radius: 3px;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+
+  user-select: none;
+
+  -webkit-user-select: none;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+
+  transform: translateY(2px);
+}
+
+
+/* =========================================
+   TOP HUD
+   ========================================= */
+
+#hud {
+
+  position: absolute;
+
+  top:
+    max(
+      9px,
+      env(safe-area-inset-top)
+    );
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: min(91%, 650px);
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #111;
+
+  font-size: 13px;
+
+  font-weight: 900;
+
+  z-index: 10;
+
+  pointer-events: none;
+}
+
+#hud div {
+
+  background: #e9e5bd;
+
+  border: 2px solid #111;
+
+  padding: 5px 8px;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   PAUSE
+   ========================================= */
+
+#pause {
+
+  position: absolute;
+
+  right:
+    max(
+      12px,
+      env(safe-area-inset-right)
+    );
+
+  top: 48px;
+
+  width: 46px;
+  height: 42px;
+
+  font-size: 18px;
+
+  z-index: 20;
+}
+
+
+/* =========================================
+   GAME A / GAME B
+   ========================================= */
+
+#modes {
+
+  position: absolute;
+
+  left: 50%;
+
+  top: 8%;
+
+  transform: translateX(-50%);
+
+  display: flex;
+
+  gap: 7px;
+
+  z-index: 20;
+}
+
+#modes button {
+
+  padding: 7px 11px;
+
+  font-size: 12px;
+}
+
+#modes button.active {
+
+  background: #111;
+
+  color: #e9e5bd;
+}
+
+
+/* =========================================
+   CONTROL AREA
+   ========================================= */
+
+#controls {
+
+  position: absolute;
+
+  bottom:
+    max(
+      22px,
+      env(safe-area-inset-bottom)
+    );
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: min(90%, 600px);
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-end;
+
+  z-index: 20;
+}
+
+
+/* =========================================
+   UP / DOWN
+   ========================================= */
+
+.dir {
+
+  display: flex;
+
+  gap: 8px;
+}
+
+.dir button {
+
+  width: 65px;
+
+  height: 58px;
+
+  font-size: 22px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  line-height: 18px;
+}
+
+.dir button small {
+
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 9px;
+
+  line-height: 10px;
+}
+
+
+/* =========================================
+   HIT
+   ========================================= */
+
+#hit {
+
+  width: 100px;
+
+  height: 64px;
+
+  font-size: 22px;
+
+  box-shadow:
+    5px 5px 0 #111;
+}
+
+#hit:active {
+
+  box-shadow:
+    2px 2px 0 #111;
+
+  transform:
+    translate(3px, 3px);
+}
+
+
+/* =========================================
+   START BUTTON
+   ========================================= */
+
+#start {
+
+  position: absolute;
+
+  left: 50%;
+
+  top: 49%;
+
+  transform: translate(
+    -50%,
+    -50%
+  );
+
+  padding:
+    16px 38px;
+
+  font-size: 28px;
+
+  z-index: 30;
+
+  box-shadow:
+    6px 6px 0 #111;
+}
+
+#start:active {
+
+  transform:
+    translate(
+      calc(-50% + 4px),
+      calc(-50% + 4px)
+    );
+
+  box-shadow:
+    2px 2px 0 #111;
+}
+
+
+/* =========================================
+   HELP TEXT
+   ========================================= */
+
+#tip {
+
+  position: absolute;
+
+  left: 50%;
+
+  bottom: 5px;
+
+  transform: translateX(-50%);
+
+  width: 96%;
+
+  text-align: center;
+
+  color: #e9e5bd;
+
+  font-size: 10px;
+
+  line-height: 12px;
+
+  opacity: .9;
+
+  pointer-events: none;
+
+  z-index: 10;
+}
+
+
+/* =========================================
+   HIDDEN
+   ========================================= */
+
+.hide {
+
+  display: none !important;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-height: 700px) {
+
+  #controls {
+
+    bottom: 8px;
+  }
+
+  .dir button {
+
+    width: 58px;
+    height: 48px;
+
+    font-size: 19px;
+  }
+
+  #hit {
+
+    width: 90px;
+    height: 52px;
+
+    font-size: 19px;
+  }
+
+  #tip {
+
+    display: none;
+  }
+}
+
+
+/* =========================================
+   VERY SMALL PHONES
+   ========================================= */
+
+@media (max-width: 380px) {
+
+  #hud {
+
+    font-size: 10px;
+  }
+
+  #hud div {
+
+    padding: 4px 5px;
+  }
+
+  #modes {
+
+    top: 9%;
+  }
+
+  #modes button {
+
+    padding: 5px 8px;
+
+    font-size: 10px;
+  }
+
+  .dir {
+
+    gap: 5px;
+  }
+
+  .dir button {
+
+    width: 55px;
+    height: 50px;
+  }
+
+  #hit {
+
+    width: 82px;
+    height: 56px;
+  }
+}
