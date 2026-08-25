@@ -20,7 +20,7 @@ const charlie=[
 "0111100011111","1111111111111","1111111111110","0111111111100",
 "0011111111000","0001111110000","0000111100000","0000111100000",
 "0001111110000","0011000110000","0110000011000"];
-const lucy=[
+const lucySprite=[
 "0000011111000","0001111111100","0011111111110","0111111111111",
 "0111100011111","1111111111111","1111111111110","0111111111100",
 "0011111110000","0011111110000","0011111111000","0110000011100",
@@ -62,7 +62,7 @@ function draw(){
   // rackets
   ctx.strokeStyle=INK;ctx.lineWidth=5;ctx.beginPath();ctx.arc(210,sy-2,24,0,Math.PI*2);ctx.moveTo(210,sy+21);ctx.lineTo(223,sy+48);ctx.stroke();
   ctx.beginPath();ctx.arc(790,sy-5,24,0,Math.PI*2);ctx.moveTo(790,sy+18);ctx.lineTo(812,sy+44);ctx.stroke();
-  if(ball&&ball.from==="lucy"){pxart(lucy,330,ball.y-42,4);ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.beginPath();ctx.arc(386,ball.y-14,18,0,Math.PI*2);ctx.stroke()}
+  if(ball&&ball.from==="lucy"){pxart(lucySprite,330,ball.y-42,4);ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.beginPath();ctx.arc(386,ball.y-14,18,0,Math.PI*2);ctx.stroke()}
   if(ball){rect(ball.x-5,ball.y-5,10,10);rect(ball.x-2,ball.y-8,4,4)}
   if(returnBall)rect(returnBall.x-5,returnBall.y-5,10,10);
   drawHUD();
