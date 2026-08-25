@@ -1,1 +1,114 @@
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;const W=960,H=620,LCD='#d8d7a6',DARK='#1d1d17',MID='#595a47',LIGHT='#aaa982';let score=0,best=Number(localStorage.getItem('snoopyBest')||0),misses=0,lane=1,mode='A',running=false,paused=false,gameOver=false,last=0,spawnTimer=1,hitCooldown=0,flash=0,rally=0,ball=null,returnBall=null,lucyTimer=0,audio=null;const lanes=[245,310,375],charlie={x:145,y:360},snoopy={x:760,y:310};function sound(f=440,d=.035){try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.type='square';o.frequency.value=f;g.gain.value=.025;o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+d)}catch(e){}}function px(x,y,w,h){ctx.fillRect(Math.round(x),Math.round(y),w,h)}function sprite(p,x,y,s=4){for(let r=0;r<p.length;r++)for(let c=0;c<p[r].length;c++)if(p[r][c]==='1')px(x+c*s,y+r*s,s,s)}const CHARLIE=['000001110000','000011111000','000111111100','001111111110','001110001110','011110001111','011111111111','011111111110','001111111100','000111111000','000011110000','000011110000','000111111000','001100011000','011000001100'];const SNOOPY=['000000111100000','000011111111000','000111111111100','001111111111110','001111000011110','011110000001111','011111111111111','011111111111110','001111111111100','000111111111000','000011111110000','000001111100000','000001111100000','000011111110000','000110000110000'];const LUCY=['000001111100','000111111110','001111111111','011111111111','011110001111','111111111111','111111111110','011111111100','001111111000','001111111000','001111111100','011000001110','110000000011'];function reset(){score=0;misses=0;lane=1;rally=0;ball=null;returnBall=null;lucyTimer=0;spawnTimer=.8;hitCooldown=0;flash=0;running=true;paused=false;gameOver=false;start.textContent='START';last=performance.now();sound(620,.05);requestAnimationFrame(loop)}function endGame(){running=false;gameOver=true;ball=null;returnBall=null;if(score>best){best=score;localStorage.setItem('snoopyBest',best)}sound(100,.18);draw()}function miss(){misses++;rally=0;ball=null;returnBall=null;flash=.18;sound(120,.1);if(misses>=3)endGame();else spawnTimer=.8}function spawn(){const target=Math.floor(Math.random()*3),speed=(mode==='B'?185:150)+Math.min(score,300)*.15;ball={x:charlie.x+75,y:lanes[target],target,vx:speed,from:'charlie'};spawnTimer=Math.max(.55,(mode==='B'?1:.9)-score*.001)}function hit(){if(!running||paused||hitCooldown>0||!ball)return;hitCooldown=.16;const d=Math.abs(ball.y-lanes[lane]);if(ball.x>650&&d<34){const from=ball.from;score+=from==='lucy'?3:2;rally++;returnBall={x:snoopy.x-10,y:ball.y,t:.28};ball=null;sound(from==='lucy'?760:560,.04);if(from==='charlie'&&mode==='B'&&rally>=3&&Math.random()<.25)lucyTimer=.35;else if(from==='charlie'&&rally>=4&&Math.random()<.16)lucyTimer=.35}else sound(180,.025)}function update(dt){if(hitCooldown>0)hitCooldown-=dt;if(flash>0)flash-=dt;if(lucyTimer>0){lucyTimer-=dt;if(lucyTimer<=0&&!ball){const target=lane;ball={x:snoopy.x-25,y:lanes[target],target,vx:-(mode==='B'?340:300),from:'lucy'}}}if(returnBall){returnBall.t-=dt;returnBall.x+=330*dt;if(returnBall.t<=0)returnBall=null}if(!ball&&!returnBall&&lucyTimer<=0){spawnTimer-=dt;if(spawnTimer<=0)spawn()}if(ball){ball.x+=ball.vx*dt;if(ball.from==='charlie'&&ball.x>610&&mode==='B'&&Math.random()<.015)ball.y+=(Math.random()-.5)*10;if(ball.from==='charlie'&&ball.x>700){if(Math.random()<.004&&score>10){lucyTimer=.08;ball=null}}else if(ball.from==='lucy'&&ball.x<80)miss();else if(ball.from==='charlie'&&ball.x>870)miss()}}function text(t,x,y,size=18,align='center'){ctx.font=`900 ${size}px monospace`;ctx.textAlign=align;ctx.fillStyle=DARK;ctx.fillText(t,x,y)}function lcdNoise(){ctx.globalAlpha=.06;for(let y=0;y<H;y+=4){ctx.fillStyle=y%8===0?DARK:LIGHT;ctx.fillRect(0,y,W,2)}ctx.globalAlpha=1}function drawCourt(){ctx.strokeStyle=DARK;ctx.lineWidth=4;ctx.strokeRect(18,18,W-36,H-36);ctx.lineWidth=2;for(let x=28;x<W-28;x+=22){ctx.fillRect(x,25,12,2);ctx.fillRect(x,H-27,12,2)}ctx.lineWidth=18;ctx.beginPath();ctx.moveTo(735,90);ctx.bezierCurveTo(690,180,705,300,748,420);ctx.bezierCurveTo(770,470,760,515,735,555);ctx.stroke();ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(728,245);ctx.lineTo(825,205);ctx.moveTo(735,310);ctx.lineTo(845,310);ctx.moveTo(742,375);ctx.lineTo(835,420);ctx.stroke();for(const y of lanes)ctx.fillRect(742,y+17,104,5);ctx.fillRect(65,440,220,5);ctx.fillRect(80,445,5,45);ctx.fillRect(265,445,5,45)}function drawCharacter(){sprite(CHARLIE,70,365,5);ctx.strokeStyle=DARK;ctx.lineWidth=5;ctx.beginPath();ctx.arc(205,370,22,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(205,388);ctx.lineTo(215,420);ctx.stroke();const sy=lanes[lane];sprite(SNOOPY,690,sy-62,5);ctx.beginPath();ctx.arc(790,sy-12,24,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(790,sy+12);ctx.lineTo(810,sy+35);ctx.stroke();if(ball&&ball.from==='lucy'){sprite(LUCY,330,ball.y-42,4);ctx.beginPath();ctx.arc(385,ball.y-15,18,0,Math.PI*2);ctx.stroke()}}function drawBall(){ctx.fillStyle=DARK;if(ball){px(ball.x-5,ball.y-5,10,10);px(ball.x-2,ball.y-8,4,4)}if(returnBall)px(returnBall.x-5,returnBall.y-5,10,10)}function drawHUD(){text('SNOOPY TENNIS',480,55,30);text('SP-30',480,83,14);text('SCORE',70,95,13,'left');text(String(score).padStart(4,'0'),150,95,18,'left');text('MISS',355,95,13,'left');for(let i=0;i<3;i++){ctx.strokeStyle=DARK;ctx.lineWidth=2;ctx.strokeRect(405+i*25,80,17,17);if(i<misses){ctx.beginPath();ctx.moveTo(407+i*25,82);ctx.lineTo(420+i*25,95);ctx.moveTo(420+i*25,82);ctx.lineTo(407+i*25,95);ctx.stroke()}}text('BEST '+String(best).padStart(4,'0'),875,95,13,'right');text(mode==='A'?'GAME A':'GAME B',875,575,14,'right');if(rally>=5)text('CHANCE',480,580,15);text('▲',470,120,18);text('▼',470,510,18)}function draw(){ctx.fillStyle=LCD;ctx.fillRect(0,0,W,H);drawCourt();drawCharacter();drawBall();drawHUD();lcdNoise();if(flash>0){ctx.globalAlpha=.15;ctx.fillStyle=DARK;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}if(paused){ctx.fillStyle=LCD;ctx.globalAlpha=.9;ctx.fillRect(250,250,460,100);ctx.globalAlpha=1;text('PAUSE',480,312,34)}if(gameOver){ctx.fillStyle=LCD;ctx.globalAlpha=.93;ctx.fillRect(250,235,460,145);ctx.globalAlpha=1;text('GAME OVER',480,292,34);text('3 MISS',480,326,16);text('PRESS START',480,352,13)}if(!running&&!gameOver){ctx.fillStyle=LCD;ctx.globalAlpha=.9;ctx.fillRect(250,235,460,145);ctx.globalAlpha=1;text('SNOOPY TENNIS',480,292,30);text('PRESS START',480,335,16)}}function loop(t){if(!running){draw();return}if(!paused){const dt=Math.min(.033,(t-last)/1000);last=t;update(dt)}draw();requestAnimationFrame(loop)}up.onclick=()=>{if(running&&!paused){lane=Math.max(0,lane-1);sound(330,.02)}};down.onclick=()=>{if(running&&!paused){lane=Math.min(2,lane+1);sound(360,.02)}};hit.onclick=hit;pause.onclick=()=>{if(running){paused=!paused;pause.textContent=paused?'▶':'Ⅱ';last=performance.now()}};start.onclick=reset;gameA.onclick=()=>{if(!running){mode='A';gameA.classList.add('active');gameB.classList.remove('active');draw()}};gameB.onclick=()=>{if(!running){mode='B';gameB.classList.add('active');gameA.classList.remove('active');draw()}};window.addEventListener('keydown',e=>{if(e.key==='ArrowUp')up.click();if(e.key==='ArrowDown')down.click();if(e.key===' '||e.key==='Enter')hit();if(e.key.toLowerCase()==='p')pause.click()});draw();
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+ctx.imageSmoothingEnabled=false;
+const W=960,H=620,LCD="#d8d7a6",INK="#202017",MID="#62634d",FAINT="#929379";
+let score=0,best=+localStorage.getItem("snoopyBest")||0,misses=0,lane=1,mode="A";
+let running=false,paused=false,gameOver=false,last=0,spawn=0.8,hitLock=0,flash=0,ball=null,returnBall=null,lucy=0,rally=0,audio=null;
+
+const lanes=[248,310,372];
+
+function tone(f=440,d=.04){try{audio=audio||(window.AudioContext?new AudioContext():new webkitAudioContext());const o=audio.createOscillator(),g=audio.createGain();o.type="square";o.frequency.value=f;g.gain.value=.025;o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+d)}catch(e){}}
+function rect(x,y,w,h,c=INK){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),w,h)}
+function pxart(p,x,y,s=5){for(let r=0;r<p.length;r++)for(let c=0;c<p[r].length;c++)if(p[r][c]==="1")rect(x+c*s,y+r*s,s,s)}
+
+const snoopy=[
+"000000011110000","000000111111000","000001111111100","000011111111110",
+"000011100011110","000111000001111","001111111111111","001111111111110",
+"000111111111100","000011111111000","000001111110000","000000111100000",
+"000000111100000","000001111110000","000011000011000"];
+const charlie=[
+"0000011110000","0001111111100","0011111111110","0111111111111",
+"0111100011111","1111111111111","1111111111110","0111111111100",
+"0011111111000","0001111110000","0000111100000","0000111100000",
+"0001111110000","0011000110000","0110000011000"];
+const lucy=[
+"0000011111000","0001111111100","0011111111110","0111111111111",
+"0111100011111","1111111111111","1111111111110","0111111111100",
+"0011111110000","0011111110000","0011111111000","0110000011100",
+"1100000000110"];
+
+function drawTree(){
+  rect(735,75,22,485);
+  ctx.strokeStyle=INK;ctx.lineWidth=15;ctx.beginPath();
+  ctx.moveTo(748,90);ctx.bezierCurveTo(700,180,715,290,750,390);ctx.bezierCurveTo(770,455,760,515,735,560);ctx.stroke();
+  ctx.lineWidth=5;ctx.beginPath();
+  ctx.moveTo(744,230);ctx.lineTo(835,190);ctx.moveTo(748,300);ctx.lineTo(855,300);ctx.moveTo(752,370);ctx.lineTo(840,415);ctx.stroke();
+  for(const y of lanes){rect(735,y+20,115,4);rect(820,y+13,4,18)}
+}
+function drawDoghouse(){
+  rect(62,425,225,8);rect(75,433,8,58);rect(265,433,8,58);
+  ctx.strokeStyle=INK;ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(55,425);ctx.lineTo(175,365);ctx.lineTo(295,425);ctx.stroke();
+  ctx.lineWidth=5;ctx.strokeRect(145,438,62,53);
+  rect(162,451,28,40,LCD);
+}
+function drawCourt(){
+  ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.strokeRect(18,18,W-36,H-36);
+  for(let x=28;x<W-28;x+=24)rect(x,25,13,2);
+  drawTree();drawDoghouse();
+}
+function drawHUD(){
+  txt("SNOOPY TENNIS",480,53,29);
+  txt("SP-30",480,78,13);
+  txt("SCORE",60,97,12,"left");txt(String(score).padStart(4,"0"),145,97,17,"left");
+  txt("MISS",350,97,12,"left");
+  for(let i=0;i<3;i++){ctx.strokeStyle=INK;ctx.lineWidth=2;ctx.strokeRect(405+i*25,80,17,17);if(i<misses){ctx.beginPath();ctx.moveTo(407+i*25,82);ctx.lineTo(420+i*25,95);ctx.moveTo(420+i*25,82);ctx.lineTo(407+i*25,95);ctx.stroke()}}
+  txt("BEST "+String(best).padStart(4,"0"),900,97,12,"right");
+  txt(mode==="A"?"GAME A":"GAME B",900,584,13,"right");
+}
+function txt(t,x,y,size=18,align="center"){ctx.fillStyle=INK;ctx.font=`900 ${size}px monospace`;ctx.textAlign=align;ctx.fillText(t,x,y)}
+function draw(){
+  ctx.fillStyle=LCD;ctx.fillRect(0,0,W,H);drawCourt();
+  pxart(charlie,70,355,5);
+  const sy=lanes[lane];pxart(snoopy,690,sy-58,5);
+  // rackets
+  ctx.strokeStyle=INK;ctx.lineWidth=5;ctx.beginPath();ctx.arc(210,sy-2,24,0,Math.PI*2);ctx.moveTo(210,sy+21);ctx.lineTo(223,sy+48);ctx.stroke();
+  ctx.beginPath();ctx.arc(790,sy-5,24,0,Math.PI*2);ctx.moveTo(790,sy+18);ctx.lineTo(812,sy+44);ctx.stroke();
+  if(ball&&ball.from==="lucy"){pxart(lucy,330,ball.y-42,4);ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.beginPath();ctx.arc(386,ball.y-14,18,0,Math.PI*2);ctx.stroke()}
+  if(ball){rect(ball.x-5,ball.y-5,10,10);rect(ball.x-2,ball.y-8,4,4)}
+  if(returnBall)rect(returnBall.x-5,returnBall.y-5,10,10);
+  drawHUD();
+  ctx.globalAlpha=.055;for(let y=0;y<H;y+=4)rect(0,y,W,2,y%8?FAINT:INK);ctx.globalAlpha=1;
+  if(flash>0){ctx.globalAlpha=.15;rect(0,0,W,H);ctx.globalAlpha=1}
+  if(paused||gameOver||!running){ctx.globalAlpha=.92;rect(250,225,460,165);ctx.globalAlpha=1;
+    txt(gameOver?"GAME OVER":paused?"PAUSE":"SNOOPY TENNIS",480,290,32);
+    txt(gameOver?"3 MISS":paused?"PRESS PAUSE":"PRESS START",480,330,15);
+    if(gameOver)txt("SCORE "+String(score).padStart(4,"0"),480,360,14);
+  }
+}
+function reset(){score=0;misses=0;lane=1;spawn=.8;hitLock=0;flash=0;ball=null;returnBall=null;lucy=0;rally=0;running=true;paused=false;gameOver=false;last=performance.now();tone(620,.05);requestAnimationFrame(loop)}
+function end(){running=false;gameOver=true;ball=null;returnBall=null;if(score>best){best=score;localStorage.setItem("snoopyBest",best)}tone(100,.16)}
+function miss(){misses++;rally=0;ball=null;returnBall=null;flash=.18;tone(120,.1);if(misses>=3)end();else spawn=.7}
+function makeBall(){
+  const target=Math.floor(Math.random()*3),speed=(mode==="B"?195:155)+Math.min(score,300)*.15;
+  ball={x:220,y:lanes[target],target,vx:speed,from:"charlie"};
+  spawn=Math.max(.48,(mode==="B"?0.82:.92)-score*.0015)
+}
+function hit(){
+  if(!running||paused||hitLock>0||!ball)return;
+  hitLock=.14;
+  if(ball.x>625&&Math.abs(ball.y-lanes[lane])<36){
+    const f=ball.from;score+=f==="lucy"?3:2;rally++;
+    returnBall={x:ball.x,y:ball.y,t:.24};ball=null;tone(f==="lucy"?780:560,.035);
+    if(f==="charlie"&&((mode==="B"&&rally>=3)||(mode==="A"&&rally>=5))&&Math.random()<.22)lucy=.28;
+  }else tone(180,.02)
+}
+function update(dt){
+  if(hitLock>0)hitLock-=dt;if(flash>0)flash-=dt;
+  if(lucy>0){lucy-=dt;if(lucy<=0&&!ball)ball={x:675,y:lanes[lane],target:lane,vx:-(mode==="B"?350:310),from:"lucy"}}
+  if(returnBall){returnBall.t-=dt;returnBall.x+=360*dt;if(returnBall.t<=0)returnBall=null}
+  if(!ball&&!returnBall&&lucy<=0){spawn-=dt;if(spawn<=0)makeBall()}
+  if(ball){ball.x+=ball.vx*dt;
+    if(ball.from==="charlie"&&ball.x>600&&mode==="B")ball.y+=(Math.random()-.5)*6;
+    if(ball.from==="charlie"&&ball.x>880)miss();
+    if(ball.from==="lucy"&&ball.x<55)miss();
+  }
+}
+function loop(t){if(!running){draw();return}if(!paused){const dt=Math.min(.033,(t-last)/1000);last=t;update(dt)}draw();requestAnimationFrame(loop)}
+up.onclick=()=>{if(running&&!paused){lane=Math.max(0,lane-1);tone(330,.02)}};
+down.onclick=()=>{if(running&&!paused){lane=Math.min(2,lane+1);tone(360,.02)}};
+hit.onclick=hit;
+pause.onclick=()=>{if(running){paused=!paused;pause.textContent=paused?"▶":"Ⅱ";last=performance.now()}};
+start.onclick=reset;
+gameA.onclick=()=>{if(!running){mode="A";gameA.classList.add("active");gameB.classList.remove("active");draw()}};
+gameB.onclick=()=>{if(!running){mode="B";gameB.classList.add("active");gameA.classList.remove("active");draw()}};
+addEventListener("keydown",e=>{if(e.key==="ArrowUp")up.click();if(e.key==="ArrowDown")down.click();if(e.key===" "||e.key==="Enter")hit();if(e.key.toLowerCase()==="p")pause.click()});
+draw();
