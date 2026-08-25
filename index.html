@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Snoopy Tennis SP-30</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#d8d8d8;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;touch-action:none}
+.gw{position:relative;width:min(1080px,98vw);aspect-ratio:1.69;background:#eee2ad;border:7px solid #7d4f83;border-radius:12px;box-shadow:0 12px 30px #777;display:grid;grid-template-columns:16% 68% 16%;padding:12px}
+.left,.right{display:flex;flex-direction:column;align-items:center}
+.left{justify-content:space-between;padding:4% 0 8%}
+.right{justify-content:flex-start;padding-top:4%}
+.nintendo{font-size:clamp(10px,1.4vw,16px);font-weight:700;text-align:center}
+.gamewatch{font-size:clamp(15px,2.2vw,28px);font-weight:900;text-align:center;line-height:.9;margin-top:3px}
+.snoopyart{font-family:Georgia,serif;font-weight:900;font-size:clamp(18px,2.8vw,36px);letter-spacing:-2px;transform:rotate(-5deg)}
+.hit{width:clamp(55px,7vw,85px);height:clamp(55px,7vw,85px);border-radius:50%;border:4px solid #3c3030;background:#c9433d;box-shadow:inset 0 -7px #8d2d2b,3px 4px #777}
+.lbl{font-weight:900;font-size:clamp(9px,1.2vw,14px);margin-top:-5px}
+.screenbox{display:flex;align-items:center;justify-content:center;min-width:0}
+.screen{width:100%;aspect-ratio:1.73;background:#c9caa9;border:6px solid #fff;border-radius:5px;box-shadow:0 0 0 4px #805287,0 0 0 8px #242424;overflow:hidden}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+.controls{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 6%}
+.ctrl{height:clamp(30px,4.2vw,45px);border-radius:8px;border:2px solid #5d485e;background:#bda9c0;font-weight:900;font-size:clamp(7px,1.1vw,13px)}
+.ctrl.active{background:#76517b;color:#fff}
+.time{font-weight:900;font-size:clamp(8px,1.1vw,13px);margin:7px 0 1px}
+.arrow{width:clamp(43px,5.7vw,68px);height:clamp(43px,5.7vw,68px);border-radius:50%;border:4px solid #3c3030;background:#c9433d;box-shadow:inset 0 -6px #8d2d2b;margin-top:7px}
+@media(max-width:700px){
+body{background:#f0f0f0}.gw{width:98vw;padding:7px;border-width:4px}
+}
+</style>
+</head>
+<body>
+<div class="gw">
+<aside class="left">
+ <div><div class="nintendo">NINTENDO</div><div class="gamewatch">GAME<br>&amp;WATCH</div></div>
+ <div class="snoopyart">SNOOPY<br><span style="font-size:.6em">TENNIS</span></div>
+ <div><button class="hit" id="hit"></button><div class="lbl">HIT</div></div>
+</aside>
+<section class="screenbox"><div class="screen"><canvas id="lcd" width="1581" height="914"></canvas></div></section>
+<aside class="right">
+ <div class="controls">
+  <button class="ctrl active" id="a">GAME A</button><button class="ctrl">ALARM</button>
+  <button class="ctrl" id="b">GAME B</button><button class="ctrl">ACL</button>
+ </div>
+ <div class="time">TIME</div>
+ <button class="arrow" id="up"></button><div class="lbl">UP</div>
+ <button class="arrow" id="down"></button><div class="lbl">DOWN</div>
+</aside>
+</div>
+<script>
+const c=document.getElementById('lcd'),g=c.getContext('2d');g.imageSmoothingEnabled=false;
+const W=1581,H=914, BG='#c9caa9', SEG='#3f443b', GREEN='#4e8a4d', RED='#9d4034', BROWN='#96503b';
+let game='A',started=false,paused=false,lane=1,score=0,miss=0,ball=null,next=.8,last=0;
+const y=[285,452,619];
+
+function box(x,y,w,h,c=SEG){g.fillStyle=c;g.fillRect(x,y,w,h)}
+function text(s,x,y,z,align='left'){g.fillStyle=SEG;g.font=`bold ${z}px monospace`;g.textAlign=align;g.fillText(s,x,y)}
+function segPerson(x,y,k){
+ // purpose-built LCD silhouette, based on the segmented appearance of the original
+ const sets=[
+  [[3,0,7,5],[0,5,15,5],[2,10,11,4],[4,14,4,16],[10,14,4,16],[0,29,7,4],[12,29,7,4]],
+  [[3,0,7,5],[0,5,15,5],[1,10,13,5],[4,15,4,14],[10,15,4,14],[0,28,7,5],[12,28,7,5]]
+ ];
+ for(const q of sets[k%2])box(x+q[0]*3,y+q[1]*3,q[2]*3,q[3]*3)
+}
+function snoopy(x,y){
+ // compact LCD-style Snoopy silhouette
+ box(x+10,y,21,9);box(x+4,y+7,36,12);box(x,y+13,49,13);
+ box(x+9,y+25,31,11);box(x+13,y+34,7,18);box(x+31,y+34,7,18);
+ box(x-5,y+17,10,7);box(x+43,y+9,9,7);
+ // racket
+ box(x+45,y+25,5,48,BROWN);box(x+49,y+18,5,5,BROWN)
+}
+function lucy(x,y){box(x,y,36,9);box(x-4,y+8,45,18);box(x+3,y+26,35,8);box(x+8,y+34,7,25);box(x+27,y+34,7,25)}
+function charlie(x,y){box(x+7,y,25,7);box(x,y+7,39,19);box(x+5,y+26,29,8);box(x+8,y+34,7,24);box(x+25,y+34,7,24)}
+function tree(){
+ box(1345,90,34,690,BROWN);box(1295,230,28,360,BROWN);box(1390,180,24,420,BROWN);
+ for(const q of [[1330,100],[1275,245],[1400,195],[1260,355],[1415,410],[1275,540],[1420,610],[1310,690]]){box(q[0],q[1],42,13,GREEN);box(q[0]+9,q[1]-7,20,27,GREEN)}
+ for(const yy of y){box(1260,yy+42,180,14,RED);box(1300,yy+56,100,9,BROWN)}
+ // dog house
+ box(1375,755,110,95,RED);box(1360,735,140,30,BROWN);box(1415,795,35,55,BG)
+}
+function draw(){
+ g.fillStyle=BG;g.fillRect(0,0,W,H);
+ for(let yy=0;yy<H;yy+=8)box(0,yy,W,2,'#c1c2a2');
+ text('AM',35,52,25);text('12:00',93,52,40);text(String(score).padStart(3,'0'),285,52,40);
+ text('MISS',500,52,24);for(let i=0;i<3;i++)box(595+i*25,33,15,20,i<miss?SEG:BG);
+ tree();
+ // left return platform and Charlie Brown
+ box(55,610,170,13,RED);box(72,623,10,105,BROWN);charlie(100,570);
+ // snoopy in the selected LCD position
+ snoopy(1200,y[lane]-48);
+ if(ball)box(ball.x,ball.y,13,13,SEG);
+ if(!started){box(535,335,510,145,BG);text('START',790,395,42,'center');text('SNOOPY TENNIS',790,442,24,'center')}
+ if(paused){box(535,335,510,145,BG);text('PAUSE',790,410,42,'center')}
+}
+function reset(){started=true;paused=false;score=0;miss=0;lane=1;ball=null;next=.8;last=performance.now();requestAnimationFrame(loop)}
+function spawn(){const k=Math.floor(Math.random()*3);ball={x:220,y:y[k],target:k,v:game==='B'?500:410};next=game==='B'?.5:.8}
+function update(dt){
+ if(!ball){next-=dt;if(next<=0)spawn();return}
+ ball.x+=ball.v*dt;
+ if(ball.x>1510){miss++;ball=null;if(miss>=3)started=false;else next=.35}
+}
+function loop(now){if(!started){draw();return}if(!paused){update(Math.min(.035,(now-last)/1000));last=now}draw();requestAnimationFrame(loop)}
+hit.onclick=()=>{if(started&&!paused&&ball&&ball.x>1050&&Math.abs(ball.y-y[lane])<60){score+=3;ball=null;next=.22}}
+up.onclick=()=>{if(started&&!paused)lane=Math.max(0,lane-1)}
+down.onclick=()=>{if(started&&!paused)lane=Math.min(2,lane+1)}
+a.onclick=()=>{game='A';a.classList.add('active');b.classList.remove('active')}
+b.onclick=()=>{game='B';b.classList.add('active');a.classList.remove('active')}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowUp')up.click();if(e.key==='ArrowDown')down.click();if(e.code==='Space')hit.click();if(e.key==='Enter')reset()});
+draw();
+document.querySelector('.screen').addEventListener('click',()=>{if(!started)reset()});
+</script>
+</body>
+</html>
