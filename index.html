@@ -1,41 +1,12 @@
-<!doctype html>
-<html lang="el">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Snoopy Tennis SP-30 — Stage 3</title>
-<link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css">
-</head>
-<body>
-<main class="device">
-<header class="brand"><div>N I N T E N D O</div><small>G A M E  &amp;  W A T C H</small><h1>SNOOPY TENNIS</h1></header>
-<section class="screen-shell"><div class="bezel"><canvas id="lcd" width="790" height="540"></canvas></div></section>
-
-<section class="controls">
-<button id="gameA" class="purple active">GAME A</button><button id="gameB" class="purple">GAME B</button>
-<button id="hit" class="hit">HIT</button><button id="pause" class="cream">Ⅱ</button>
-<button id="up" class="cream arrow">▲<span>UP</span></button><button id="down" class="cream arrow">▼<span>DOWN</span></button>
-<button id="start" class="start cream">START</button><button id="alarm" class="purple wide">ALARM</button><button id="acl" class="purple wide">ACL</button>
-</section>
-
-<section class="lab">
-<div class="labtop"><b>SP-30 LCD SPRITE LAB — STAGE 3</b><span id="labname">SNOOPY · MID</span></div>
-<div class="labgrid">
-<div class="bigpreview"><canvas id="editor" width="420" height="300"></canvas></div>
-<div class="buttons">
-<button data-s="snoopyTop" class="selected">SNOOPY TOP</button>
-<button data-s="snoopyMid">SNOOPY MID</button>
-<button data-s="snoopyBottom">SNOOPY BOTTOM</button>
-<button data-s="snoopyHit">SNOOPY HIT</button>
-<button data-s="charlie">CHARLIE</button>
-<button data-s="lucy">LUCY</button>
-<button data-s="lucyHit">LUCY HIT</button>
-<button data-s="sleep">GAME OVER</button>
-<hr>
-<button id="clear">CLEAR</button><button id="reset">RESET</button><button id="save">SAVE</button><button id="export">EXPORT</button>
-</div></div>
-<p>Τα μαύρα τετράγωνα είναι ενεργά LCD segments. Πάτησε κάθε τετράγωνο για να διορθώσεις τον χαρακτήρα. Το παιχνίδι χρησιμοποιεί ξεχωριστό mask για κάθε ύψος του Snoopy.</p>
-</section>
-</main>
-<script src="game.js"></script>
-</body></html>
+<!doctype html><html lang="el"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Snoopy Tennis SP-30 — Stage 4</title><link rel="stylesheet" href="style.css">
+</head><body><main class="device">
+<header><b>N I N T E N D O</b><small>GAME &amp; WATCH</small><h1>SNOOPY TENNIS</h1></header>
+<section class="screen"><canvas id="lcd" width="1580" height="1080"></canvas></section>
+<section class="controls"><button id="gameA">GAME A</button><button id="gameB">GAME B</button>
+<button id="up">▲<small>UP</small></button><button id="hit">HIT</button><button id="down">▼<small>DOWN</small></button>
+<button id="start">START</button><button id="pause">Ⅱ</button><button id="reset">ACL</button></section>
+<section class="lab"><h2>SP-30 CHARACTER LAB — STAGE 4</h2><p>Οι χαρακτήρες είναι πλέον πάντα ορατοί. Το editor επιτρέπει διόρθωση segment-by-segment.</p>
+<canvas id="editor" width="640" height="520"></canvas><div id="choices"></div></section>
+</main><script src="game.js"></script></body></html>
